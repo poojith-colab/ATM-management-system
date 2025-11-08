@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFC ATM System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .atm-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .atm-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .atm-header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .atm-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .atm-screen {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .screen-section {
+            display: none;
+        }
+
+        .screen-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .menu-btn {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .menu-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .menu-btn .icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .menu-btn .text {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .balance-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .balance-display .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-display .amount {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .statement-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .statement-item {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .statement-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .statement-item.credit {
+            border-left: 4px solid #28a745;
+        }
+
+        .statement-item.debit {
+            border-left: 4px solid #dc3545;
+        }
+
+        .statement-empty {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .user-info .name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .user-info .card-number {
+            font-size: 14px;
+            color: #666;
+            letter-spacing: 2px;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <div class="atm-header">
+            <h1>🏦 HDFC ATM</h1>
+            <p>Your Trusted Banking Partner</p>
+        </div>
+
+        <div class="atm-screen">
+            <!-- PIN Entry Screen -->
+            <div class="screen-section active" id="pinScreen">
+                <div class="user-info">
+                    <div class="name">Welcome!</div>
+                    <div class="card-number">**** **** **** 3456</div>
+                </div>
+                <div class="form-group">
+                    <label for="pinInput">Enter Your 4-Digit PIN</label>
+                    <input type="password" id="pinInput" maxlength="4" placeholder="****" autocomplete="off">
+                </div>
+                <div id="pinError" style="display: none;"></div>
+                <button class="btn btn-primary" onclick="verifyPin()">🔐 Enter</button>
+                <p style="text-align: center; margin-top: 15px; color: #999; font-size: 13px;">
+                    Default PIN: 1234
+                </p>
+            </div>
+
+            <!-- Main Menu Screen -->
+            <div class="screen-section" id="menuScreen">
+                <div class="user-info">
+                    <div class="name" id="userName">John Doe</div>
+                    <div class="card-number">Card: **** **** **** 3456</div>
+                </div>
+                <div class="menu-grid">
+                    <div class="menu-btn" onclick="showScreen('balanceScreen')">
+                        <div class="icon">💰</div>
+                        <div class="text">Check Balance</div>
+                    </div>
+                    <div class="menu-btn" onclick="showScreen('withdrawScreen')">
+                        <div class="icon">💵</div>
+                        <div class="text">Withdraw</div>
+                    </div>
+                    <div class="menu-btn" onclick="showScreen('depositScreen')">
+                        <div class="icon">💳</div>
+                        <div class="text">Deposit</div>
+                    </div>
+                    <div class="menu-btn" onclick="showScreen('statementScreen'); updateStatement()">
+                        <div class="icon">📊</div>
+                        <div class="text">Mini Statement</div>
+                    </div>
+                    <div class="menu-btn" onclick="showScreen('changePinScreen')">
+                        <div class="icon">🔐</div>
+                        <div class="text">Change PIN</div>
+                    </div>
+                    <div class="menu-btn" onclick="exitATM()">
+                        <div class="icon">🚪</div>
+                        <div class="text">Exit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Screen -->
+            <div class="screen-section" id="balanceScreen">
+                <div class="balance-display">
+                    <div class="label">Current Balance</div>
+                    <div class="amount">₹<span id="balanceAmount">10000</span></div>
+                </div>
+                <button class="btn back-btn" onclick="showScreen('menuScreen')">← Back to Menu</button>
+            </div>
+
+            <!-- Withdraw Screen -->
+            <div class="screen-section" id="withdrawScreen">
+                <h3 style="margin-bottom: 20px; color: #333;">💵 Withdraw Money</h3>
+                <div id="withdrawAlert"></div>
+                <div class="form-group">
+                    <label for="withdrawAmount">Enter Amount (Multiples of ₹100)</label>
+                    <input type="number" id="withdrawAmount" placeholder="₹0" step="100" min="100">
+                </div>
+                <button class="btn btn-primary" onclick="withdraw()">Withdraw</button>
+                <button class="btn back-btn" onclick="showScreen('menuScreen')">← Back to Menu</button>
+            </div>
+
+            <!-- Deposit Screen -->
+            <div class="screen-section" id="depositScreen">
+                <h3 style="margin-bottom: 20px; color: #333;">💳 Deposit Money</h3>
+                <div id="depositAlert"></div>
+                <div class="form-group">
+                    <label for="depositAmount">Enter Amount (Multiples of ₹100)</label>
+                    <input type="number" id="depositAmount" placeholder="₹0" step="100" min="100">
+                </div>
+                <button class="btn btn-primary" onclick="deposit()">Deposit</button>
+                <button class="btn back-btn" onclick="showScreen('menuScreen')">← Back to Menu</button>
+            </div>
+
+            <!-- Statement Screen -->
+            <div class="screen-section" id="statementScreen">
+                <h3 style="margin-bottom: 20px; color: #333;">📊 Mini Statement</h3>
+                <div class="statement-list" id="statementList">
+                    <div class="statement-empty">No transactions yet</div>
+                </div>
+                <button class="btn back-btn" onclick="showScreen('menuScreen')" style="margin-top: 20px;">← Back to Menu</button>
+            </div>
+
+            <!-- Change PIN Screen -->
+            <div class="screen-section" id="changePinScreen">
+                <h3 style="margin-bottom: 20px; color: #333;">🔐 Change PIN</h3>
+                <div id="changePinAlert"></div>
+                <div class="form-group">
+                    <label for="newPin">Enter New 4-Digit PIN</label>
+                    <input type="password" id="newPin" maxlength="4" placeholder="****">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPin">Confirm New PIN</label>
+                    <input type="password" id="confirmPin" maxlength="4" placeholder="****">
+                </div>
+                <button class="btn btn-primary" onclick="changePin()">Change PIN</button>
+                <button class="btn back-btn" onclick="showScreen('menuScreen')">← Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ATM System JavaScript Implementation
+        class ATMSystem {
+            constructor() {
+                this.name = "John Doe";
+                this.cardNumber = 1234567890123456;
+                this.balance = 10000;
+                this.pin = 1234;
+                this.chances = 3;
+                this.statement = [];
+            }
+
+            verifyPin(enteredPin) {
+                if (parseInt(enteredPin) === this.pin) {
+                    this.chances = 3;
+                    return true;
+                } else {
+                    this.chances--;
+                    return false;
+                }
+            }
+
+            withdraw(amount) {
+                if (amount <= 0 || amount % 100 !== 0) {
+                    throw new Error("Amount must be positive and in multiples of ₹100");
+                }
+                if (amount > this.balance) {
+                    throw new Error("Insufficient funds in your account");
+                }
+                this.balance -= amount;
+                this.statement.unshift({type: 'debit', amount: amount, date: new Date()});
+                return this.balance;
+            }
+
+            deposit(amount) {
+                if (amount <= 0 || amount % 100 !== 0) {
+                    throw new Error("Amount must be positive and in multiples of ₹100");
+                }
+                this.balance += amount;
+                this.statement.unshift({type: 'credit', amount: amount, date: new Date()});
+            }
+
+            changePin(newPin) {
+                this.pin = parseInt(newPin);
+            }
+
+            getStatement() {
+                return this.statement.slice(0, 5);
+            }
+        }
+
+        const atm = new ATMSystem();
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen-section').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function verifyPin() {
+            const pinInput = document.getElementById('pinInput').value;
+            const errorDiv = document.getElementById('pinError');
+            
+            if (pinInput.length !== 4) {
+                showAlert(errorDiv, 'Please enter a 4-digit PIN', 'error');
+                return;
+            }
+
+            if (atm.verifyPin(pinInput)) {
+                document.getElementById('pinInput').value = '';
+                errorDiv.style.display = 'none';
+                document.getElementById('userName').textContent = atm.name;
+                updateBalance();
+                showScreen('menuScreen');
+            } else {
+                showAlert(errorDiv, `Wrong PIN! Chances remaining: ${atm.chances}`, 'error');
+                if (atm.chances === 0) {
+                    showAlert(errorDiv, 'Card blocked! Contact your bank.', 'error');
+                    document.getElementById('pinInput').disabled = true;
+                }
+            }
+        }
+
+        function withdraw() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const alertDiv = document.getElementById('withdrawAlert');
+            
+            try {
+                atm.withdraw(amount);
+                showAlert(alertDiv, `Successfully withdrew ₹${amount}. New balance: ₹${atm.balance}`, 'success');
+                document.getElementById('withdrawAmount').value = '';
+                updateBalance();
+                setTimeout(() => showScreen('menuScreen'), 2000);
+            } catch (error) {
+                showAlert(alertDiv, error.message, 'error');
+            }
+        }
+
+        function deposit() {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const alertDiv = document.getElementById('depositAlert');
+            
+            try {
+                atm.deposit(amount);
+                showAlert(alertDiv, `Successfully deposited ₹${amount}. New balance: ₹${atm.balance}`, 'success');
+                document.getElementById('depositAmount').value = '';
+                updateBalance();
+                setTimeout(() => showScreen('menuScreen'), 2000);
+            } catch (error) {
+                showAlert(alertDiv, error.message, 'error');
+            }
+        }
+
+        function changePin() {
+            const newPin = document.getElementById('newPin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+            const alertDiv = document.getElementById('changePinAlert');
+            
+            if (newPin.length !== 4 || confirmPin.length !== 4) {
+                showAlert(alertDiv, 'PIN must be 4 digits', 'error');
+                return;
+            }
+            
+            if (newPin !== confirmPin) {
+                showAlert(alertDiv, 'PINs do not match', 'error');
+                return;
+            }
+            
+            atm.changePin(newPin);
+            showAlert(alertDiv, 'PIN changed successfully!', 'success');
+            document.getElementById('newPin').value = '';
+            document.getElementById('confirmPin').value = '';
+            setTimeout(() => showScreen('menuScreen'), 2000);
+        }
+
+        function updateBalance() {
+            document.getElementById('balanceAmount').textContent = atm.balance.toFixed(0);
+        }
+
+        function updateStatement() {
+            const statementList = document.getElementById('statementList');
+            const transactions = atm.getStatement();
+            
+            if (transactions.length === 0) {
+                statementList.innerHTML = '<div class="statement-empty">No transactions yet</div>';
+                return;
+            }
+            
+            statementList.innerHTML = transactions.map(trans => `
+                <div class="statement-item ${trans.type}">
+                    <div>
+                        <strong>${trans.type === 'credit' ? '💚 Credited' : '❤️ Debited'}</strong>
+                        <div style="font-size: 12px; color: #999; margin-top: 3px;">
+                            ${trans.date.toLocaleDateString()} ${trans.date.toLocaleTimeString()}
+                        </div>
+                    </div>
+                    <div style="font-weight: 700; font-size: 18px;">
+                        ₹${trans.amount}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAlert(container, message, type) {
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            container.style.display = 'block';
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 5000);
+        }
+
+        function exitATM() {
+            if (confirm('Are you sure you want to exit?')) {
+                showScreen('pinScreen');
+                document.getElementById('pinInput').value = '';
+            }
+        }
+
+        // Allow Enter key to submit PIN
+        document.getElementById('pinInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyPin();
+        });
+    </script>
+</body>
+</html>
